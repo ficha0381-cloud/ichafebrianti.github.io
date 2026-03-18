@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>To-Do List Pro</title>
+
+<style>
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(120deg, #89f7fe, #66a6ff);
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  width: 420px;
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+}
+
+h1 {
+  text-align: center;
+}
+
+.input-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+input, select {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+input {
+  flex: 1;
+}
+
+button {
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #4facfe;
+  color: white;
+}
+
+.task {
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+}
+
+.low { background: #6ab04c; }
+.medium { background: #f9ca24; color: black; }
+.high { background: #eb4d4b; }
+
+.completed span {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.actions button {
+  margin-left: 5px;
+  padding: 5px 8px;
+}
+
+.progress {
+  margin-top: 10px;
+  height: 10px;
+  background: #ddd;
+  border-radius: 10px;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: #4facfe;
+  border-radius: 10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>🚀 To-Do Pro</h1>
+
+  <div class="input-group">
+    <input type="text" id="taskInput" placeholder="Tambah tugas...">
+    <select id="priority">
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+    <button onclick="addTask()">+</button>
+  </div>
+
+  <div id="taskList"></div>
+
+  <div class="progress">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+</div>
+
+<script>
+let tasks = [];
+
+function save() {
+  localStorage.setItem("tasksPro", JSON.stringify(tasks));
+}
+
+function load() {
+  const data = localStorage.getItem("tasksPro");
+  if (data) tasks = JSON.parse(data);
+  render();
+}
+
+function addTask() {
+  const text = document.getElementById("taskInput").value;
+  const priority = document.getElementById("priority").value;
+
+  if (!text) return alert("Isi tugas!");
+
+  tasks.push({ text, priority, done: false });
+  document.getElementById("taskInput").value = "";
+
+  save();
+  render();
+}
+
+function render() {
+  const list = document.getElementById("taskList");
+  list.innerHTML = "";
+
+  let doneCount = 0;
+
+  tasks.forEach((task, i) => {
+    if (task.done) doneCount++;
+
+    const div = document.createElement("div");
+    div.className = `task ${task.priority}`;
+    if (task.done) div.classList.add("completed");
+
+    const span = document.createElement("span");
+    span.textContent = task.text;
+    span.onclick = () => toggle(i);
+
+    const actions = document.createElement("div");
+    actions.className = "actions";
+
+    const del = document.createElement("button");
+    del.textContent = "🗑";
+    del.onclick = () => remove(i);
+
+    const edit = document.createElement("button");
+    edit.textContent = "✏️";
+    edit.onclick = () => editTask(i);
+
+    actions.appendChild(edit);
+    actions.appendChild(del);
+
+    div.appendChild(span);
+    div.appendChild(actions);
+
+    list.appendChild(div);
+  });
+
+  updateProgress(doneCount);
+}
+
+function toggle(i) {
+  tasks[i].done = !tasks[i].done;
+  save();
+  render();
+}
+
+function remove(i) {
+  tasks.splice(i, 1);
+  save();
+  render();
+}
+
+function editTask(i) {
+  const newText = prompt("Edit tugas:", tasks[i].text);
+  if (newText) {
+    tasks[i].text = newText;
+    save();
+    render();
+  }
+}
+
+function updateProgress(done) {
+  const percent = tasks.length ? (done / tasks.length) * 100 : 0;
+  document.getElementById("progressBar").style.width = percent + "%";
+}
+
+load();
+</script>
+
+</body>
+</html>
