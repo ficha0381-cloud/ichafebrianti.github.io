@@ -1,2 +1,2 @@
-# ichafebrianti.github.io
-membuat to do list
+ichafebrianti.github.io
+ to do list
